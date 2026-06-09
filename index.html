@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Definite Integrator</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 50px; }
+        .container { border: 1px solid #ccc; padding: 20px; border-radius: 8px; box-shadow: 2px 2px 10px #eee; }
+        input { padding: 10px; margin: 5px; width: 200px; }
+        button { padding: 10px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+        #result { margin-top: 20px; font-size: 1.2em; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Definite Integral Calculator</h2>
+    <p>Calculate \(\int_{a}^{b} f(x) \,dx\)</p>
+    
+    <input type="text" id="func" placeholder="f(x) e.g., x^2">
+    <input type="number" id="lower" placeholder="Lower limit (a)">
+    <input type="number" id="upper" placeholder="Upper limit (b)">
+    <br>
+    <button onclick="calculate()">Calculate</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    function calculate() {
+        const fStr = document.getElementById('func').value;
+        const a = parseFloat(document.getElementById('lower').value);
+        const b = parseFloat(document.getElementById('upper').value);
+        
+        if (!fStr || isNaN(a) || isNaN(b)) {
+            alert("Please enter a valid function and limits.");
+            return;
+        }
+
+        // Simple Numerical Integration (Trapezoidal Rule)
+        const n = 1000; // Number of steps
+        const dx = (b - a) / n;
+        let sum = 0;
+
+        // Function wrapper
+        const f = (x) => {
+            try {
+                // Replacing common math functions for eval()
+                let expr = fStr.replace(/sin/g, 'Math.sin')
+                               .replace(/cos/g, 'Math.cos')
+                               .replace(/exp/g, 'Math.exp')
+                               .replace(/sqrt/g, 'Math.sqrt')
+                               .replace(/\^/g, '**');
+                return eval(expr.replace(/x/g, `(${x})`));
+            } catch (e) { return 0; }
+        };
+
+        for (let i = 0; i < n; i++) {
+            let x1 = a + i * dx;
+            let x2 = a + (i + 1) * dx;
+            sum += (f(x1) + f(x2)) / 2 * dx;
+        }
+
+        document.getElementById('result').innerText = `Result: ${sum.toFixed(6)}`;
+    }
+</script>
+
+</body>
+</html>
